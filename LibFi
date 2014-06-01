@@ -28,7 +28,6 @@ namespace LibFi
         double Theta_BlackScholes_Put(double T, double r, double sigma, double S0, double K, double t, double S);
         double Rho_BlackScholes_Call(double T, double r, double sigma, double S0, double K, double t, double S);
         double Rho_BlackScholes_Put(double T, double r, double sigma, double S0, double K, double t, double S);
-         double Volga_BlackScholes(double T, double r, double sigma, double S0, double K, double t, double S);
     }
     
     
@@ -452,22 +451,6 @@ namespace LibFi
         
     }
     
-    public double Volga_BlackScholes(double T, double r, double sigma, double S0, double K, double t, double S)
-    {
-        double d1;
-        double d2;
-        double Volga_BS = 0;
-
-        
-
-            d1 = (Math.Log(S / K) + (r + 0.5 * sigma * sigma) * (T - t)) / (sigma * Math.Sqrt(T - t));
-            d2 = d1 - sigma * Math.Sqrt(T - t);
-
-            Volga_BS = S*dN(d1)*Math.Sqrt(T)*((d1*d2)/sigma);
-
-            return Volga_BS;
-        
-    }
       
         [ComUnregisterFunctionAttribute]
 
