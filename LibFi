@@ -1,0 +1,302 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using Microsoft.Office.Interop.Excel;
+namespace LibFi
+{
+    [InterfaceType(ComInterfaceType.InterfaceIsDual)]
+    public interface ILibFi
+    {
+        double loi_uniforme();
+        double loi_normale(double m, double s);
+        double calculP(double u, double d, double r);
+        double calculQ(double u, double d, double r);
+        double[,] arbreDuStock(double s, double u, double d, int n);
+        double[,] ArbrePrix(string callput, string type, double s, double u, double d, double k, double r, int n);
+        double CalculPrixOption(string callput, string type, double s, double u, double d, double k, double r, int n);
+        double blackScholes(string callput, string type, double s, double sigma, double t, double taux, double strike);
+        double N(double x);
+        double PrixCrr(string callput, string type, double s, double sigma, double t, int n, double taux, double strike);
+    }
+    
+    
+    [ClassInterface(ClassInterfaceType.None), ComDefaultInterface(typeof(ILibFi))]
+    public class LibFi : ILibFi
+    {
+        public double calculP(double u, double d, double r)
+        {
+            return (1.0 + r - d) / (u - d);
+        }
+        public double calculQ(double u, double d, double r)
+        {
+            return (u - 1.0 - r) / (u - d);
+        }
+
+        /*Fonction qui renvoie l'arbre de départ utilisé pour calculer le prix*/
+        public double[,] arbreDuStock(double s, double u, double d, int n)
+        {
+
+            double[,] t = new double[n + 1, n + 1];
+            for (int i = 0; i <= n; i++)
+            {
+                for (int j = i; j <= n; j++)
+                {
+                    t[i, j] = s * Math.Pow(u, (double)i) * Math.Pow(d, (double)(j - i));
+
+                }
+            }
+
+            return t;
+        }
+
+        /*Fonction qui affiche l'arbre des prix*/
+        public double[,] ArbrePrix(string callput, string type, double s, double u, double d, double k, double r, int n)
+        {
+            double p = calculP(u, d, r);
+
+            double q = calculQ(u, d, r);
+
+            double[,] t = arbreDuStock(s, u, d, n);
+
+
+            double[,] prixc = new double[n + 1, n + 1];
+
+
+            /*Calcul des pay-off en n*/
+            if (callput == "call")
+            {
+                for (int i = 0; i <= n; i++)
+                {
+                    for (int j = i; j <= n; j++)
+                    {
+                        prixc[i, j] = Math.Max((t[i, j] - k), 0.0);
+                    }
+
+                }
+
+                /*Calcul du prix pour chaque noeud: arbre des prix*/
+                if (type == "europeen")
+                {
+
+                    for (int j = n - 1; j >= 0; j--)
+                    {
+                        for (int i = j; i >= 0; i--)
+                        {
+                            prixc[i, j] = (p * prixc[i + 1, j + 1] + q * prixc[i, j + 1]) / (1.0 + r);
+                        }
+                    }
+                }
+                else if (type == "americain")
+                {
+                    for (int j = n - 1; j >= 0; j--)
+                    {
+                        for (int i = j; i >= 0; i--)
+                        {
+                            prixc[i, j] = Math.Max(prixc[i, j], (p * prixc[i + 1, j + 1] + q * prixc[i, j + 1]) / (1.0 + r));
+                        }
+                    }
+                }
+            }
+            else if (callput == "put")
+            {
+                /*Calcul du pay off des put*/
+                for (int i = 0; i <= n; i++)
+                {
+                    for (int j = i; j <= n; j++)
+                    {
+                        prixc[i, j] = Math.Max((k - t[i, j]), 0.0);
+                    }
+
+                }
+
+                /*Calcul du prix pour chaque noeud: arbre des prix*/
+                if (type == "europeen")
+                {
+                    for (int j = n - 1; j >= 0; j--)
+                    {
+                        for (int i = j; i >= 0; i--)
+                        {
+                            prixc[i, j] = (p * prixc[i + 1, j + 1] + q * prixc[i, j + 1]) / (1.0 + r);
+                        }
+                    }
+                }
+                else if (type == "americain")
+                {
+                    for (int j = n - 1; j >= 0; j--)
+                    {
+                        for (int i = j; i >= 0; i--)
+                        {
+                            prixc[i, j] = Math.Max(prixc[i, j], (p * prixc[i + 1, j + 1] + q * prixc[i, j + 1]) / (1.0 + r));
+                        }
+                    }
+                }
+            }
+
+
+
+            return prixc;
+        }
+
+        /*Fonction qui permet de calculer le prix d'une option avec l'arbre binomial*/
+        public double CalculPrixOption(string callput, string type, double s, double u, double d, double k, double r, int n)
+        {
+            double[,] g;
+            double prix = 0;
+            if (callput == "call" && type == "europeen")
+            {
+                g = ArbrePrix("call", "europeen", s, u, d, k, r, n);
+                prix = g[0, 0];
+            }
+
+            else if (callput == "call" && type == "americain")
+            {
+                g = ArbrePrix("call", "americain", s, u, d, k, r, n);
+                prix = g[0, 0];
+            }
+            else if (callput == "put" && type == "europeen")
+            {
+                g = ArbrePrix("put", "europeen", s, u, d, k, r, n);
+                prix = g[0, 0];
+            }
+
+            else if (callput == "put" && type == "americain")
+            {
+                g = ArbrePrix("put", "americain", s, u, d, k, r, n);
+                prix = g[0, 0];
+            }
+            return prix;
+        }
+
+
+        /*Fonction qui permet de calculer le prix d'une option avec BlackScholes*/
+        public double blackScholes(string CallPutFlag,string type,  double S, double v, double T, double r, double X)
+       
+             
+        {
+            double d1 = 0.0;
+            double d2 = 0.0;
+            double dBlackScholes = 0.0;
+
+            d1 = (Math.Log(S / X) + (r + v * v / 2.0) * T) / (v * Math.Sqrt(T));
+            d2 = d1 - v * Math.Sqrt(T);
+            if (CallPutFlag == "call")
+            {
+                dBlackScholes = S * N(d1) - X * Math.Exp(-r * T) * N(d2);
+            }
+            else if (CallPutFlag == "put")
+            {
+                dBlackScholes = X * Math.Exp(-r * T) * N(-d2) - S * N(-d1);
+            }
+            return dBlackScholes;
+        }
+        
+        
+        public double N(double X)
+        {
+            double L = 0.0;
+            double K = 0.0;
+            double dCND = 0.0;
+            const double a1 = 0.31938153;
+            const double a2 = -0.356563782;
+            const double a3 = 1.781477937;
+            const double a4 = -1.821255978;
+            const double a5 = 1.330274429;
+            L = Math.Abs(X);
+            K = 1.0 / (1.0 + 0.2316419 * L);
+            dCND = 1.0 - 1.0 / Math.Sqrt(2 * Convert.ToDouble(Math.PI.ToString())) *
+                Math.Exp(-L * L / 2.0) * (a1 * K + a2 * K * K + a3 * Math.Pow(K, 3.0) +
+                a4 * Math.Pow(K, 4.0) + a5 * Math.Pow(K, 5.0));
+
+            if (X < 0)
+            {
+                return 1.0 - dCND;
+            }
+            else
+            {
+                return dCND;
+            }
+        }
+
+
+        /*Permet de calculer le prix avec la méthode de Cox Rox Rubinstein*/
+        public double PrixCrr(string callput, string type, double s, double sigma, double t, int n, double taux, double strike)
+        {
+            double Delta = t / n;
+            double d = Math.Exp(-sigma * (Math.Sqrt(Delta)));
+            double u = Math.Exp(sigma * (Math.Sqrt(Delta)));
+            double R = Math.Exp(taux * Delta) - 1.0;
+
+
+            double[,] g;
+            double prix = 0.0;
+            if (callput == "call" && type == "europeen")
+            {
+                g = ArbrePrix("call", "europeen", s, u, d, strike, R, n);
+                prix = g[0, 0];
+            }
+
+            else if (callput == "call" && type == "americain")
+            {
+                g = ArbrePrix("call", "americain", s, u, d, strike, R, n);
+                prix = g[0, 0];
+            }
+            else if (callput == "put" && type == "europeen")
+            {
+                g = ArbrePrix("put", "europeen", s, u, d, strike, R, n);
+                prix = g[0, 0];
+            }
+
+            else if (callput == "put" && type == "americain")
+            {
+                g = ArbrePrix("put", "americain", s, u, d, strike, R, n);
+                prix = g[0, 0];
+            }
+            return prix;
+
+        }
+        public double loi_uniforme()
+        {
+            Random r = new Random();
+            double i = r.Next(100);
+            return i;
+        }
+        public double loi_normale(double m, double s)
+        {
+            double x1;
+            double x2;
+            double y;
+            x1 = loi_uniforme();
+            x2 = loi_uniforme();
+
+            // methode de Boc-Muller
+            y = Math.Pow(-2 * Math.Log(x1), 0.5) * Math.Cos(2 * 3 * x2);
+
+            return m + s * y;
+        }
+        [ComRegisterFunctionAttribute]
+
+        public static void RegisterFunction(System.Type t)
+        {
+            Microsoft.Win32.RegistryKey key;
+
+            Microsoft.Win32.Registry.ClassesRoot.CreateSubKey("CLSID\\{" + t.GUID.ToString().ToUpper() + "}\\Programmable");
+
+            key = Microsoft.Win32.Registry.ClassesRoot.CreateSubKey(
+                "CLSID\\{" +
+                t.GUID.ToString().ToUpper() + "}\\InprocServer32");
+            key.SetValue("", Environment.GetFolderPath(Environment.SpecialFolder.System) +
+                @"\mscoree.dll");
+        }
+        [ComUnregisterFunctionAttribute]
+
+        public static void UnregisterFunction(System.Type t)
+        {
+
+            Microsoft.Win32.Registry.ClassesRoot.DeleteSubKey("CLSID\\{" + t.GUID.ToString().ToUpper() + "}\\Programmable");
+
+        }
+    }
+}
