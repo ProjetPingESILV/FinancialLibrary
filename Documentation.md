@@ -78,23 +78,28 @@ I)	Modèle de Pricing
   
   
   II)	Greeks
-      Delta : sensibilité du prix d’une option à un mouvement du prix du sousjacent.
-      Public double Delta_BlackScholes_Call(T, r, sigma, S0, K, t, s)
-      Public double Delta_BlackScholes_Put(T, r, sigma, S0, K, t, s)
-      Gamma : sensibilité du deuxième ordre à un mouvement du prix du sousjacent.
+     
+      1) Delta : sensibilité du prix d’une option à un mouvement du prix du sousjacent.
+      	 Public double Delta_BlackScholes_Call(T, r, sigma, S0, K, t, s)
+      	 Public double Delta_BlackScholes_Put(T, r, sigma, S0, K, t, s)
+      
+      2) Gamma : sensibilité du deuxième ordre à un mouvement du prix du sousjacent.
          Public double Gamma_BlackScholes (T, r, sigma, S0, K, t, s)
-      heta : sensibilité du prix de l’option par rapport au temps.
-      Public double Theta_BlackScholes_Call(T, r, sigma, S0, K, t, s)
-      Public double Theta_BlackScholes_Put(T, r, sigma, S0, K, t, s)
-      Rho : sensibilité du prix d’une option à unmouvement des taux d’intérêts
-      Public double Rho_BlackScholes_Call(T, r, sigma, S0, K, t, s)
-      Public double Rho_BlackScholes_Put(T, r, sigma, S0, K, t, s)
-      Vega : sensibilité du prix d’une option à un mouvement au niveau de la volatilité du sous-jacent
-      Public double Vega_BlackScholes (T, r, sigma, S0, K, t, s)
+      
+      3) theta : sensibilité du prix de l’option par rapport au temps.
+      	 Public double Theta_BlackScholes_Call(T, r, sigma, S0, K, t, s)
+      	 Public double Theta_BlackScholes_Put(T, r, sigma, S0, K, t, s)
+      
+      4) Rho : sensibilité du prix d’une option à unmouvement des taux d’intérêts
+      	 Public double Rho_BlackScholes_Call(T, r, sigma, S0, K, t, s)
+      	 Public double Rho_BlackScholes_Put(T, r, sigma, S0, K, t, s)
+      
+      5) Vega : sensibilité du prix d’une option à un mouvement au niveau de la volatilité du sous-jacent
+      	 Public double Vega_BlackScholes (T, r, sigma, S0, K, t, s)
 
-	      T : maturité
-	      K : strike
+	 T : maturité
+	 K : strike
          sigma : volatilité
          r : taux sans risque
-      	S0 : prix spot a l'instant initial
+      	 S0 : prix spot a l'instant initial
 
