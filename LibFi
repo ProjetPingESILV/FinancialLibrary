@@ -229,6 +229,13 @@ namespace LibFi
                 return dCND;
             }
         }
+        
+         
+        public double dN(double x) 
+        {
+            double resultat = ((1 / Math.Sqrt(2 * 3.141592)) * Math.Exp(-(x * x) / 2)) / 1;
+            return resultat;
+        }
 
 
         /*Permet de calculer le prix avec la méthode de Cox Rox Rubinstein*/
