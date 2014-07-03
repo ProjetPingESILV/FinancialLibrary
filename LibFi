@@ -22,14 +22,7 @@ namespace LibFi
         double PrixCrr(string callput, string type, double s, double sigma, double t, int n, double taux, double strike);
         double Delta_BlackScholes_Call(double T, double r, double sigma, double S0, double K, double t, double S);
         double Delta_BlackScholes_Put(double T, double r, double sigma, double S0, double K, double t, double S);
-        double Gamma_BlackScholes(double T, double r, double sigma, double S0, double K, double t, double S);
-        double Vega_BlackScholes(double T, double r, double sigma, double S0, double K, double t, double S);
-        double Theta_BlackScholes_Call(double T, double r, double sigma, double S0, double K, double t, double S);
-        double Theta_BlackScholes_Put(double T, double r, double sigma, double S0, double K, double t, double S);
-        double Rho_BlackScholes_Call(double T, double r, double sigma, double S0, double K, double t, double S);
-        double Rho_BlackScholes_Put(double T, double r, double sigma, double S0, double K, double t, double S);
-        double Volga_BlackScholes(double T, double r, double sigma, double S0, double K, double t, double S);
-
+       
     }
     
     
@@ -373,111 +366,7 @@ namespace LibFi
             return delta_BS;
         
     }
-        public double Gamma_BlackScholes(double T,double r,double sigma,double S0,double K,double t,double S) {
-        double d1;
-        double gamma_BS = 0;
-
-        
-
-            d1 = (Math.Log(S / K) + (r + 0.5 * sigma * sigma) * (T - t)) / (sigma * Math.Sqrt(T - t));
-
-            gamma_BS = 1 / (S * sigma * Math.Sqrt(T - t)) * ((1 / Math.Sqrt(2 * (3.141592)) * Math.Exp(-(d1 * d1) / 2))) / 1;
-
-            return gamma_BS;
-        
-    }
-        public double Vega_BlackScholes(double T,double r,double sigma,double S0,double K,double t,double S) {
-        double d1;
-        double vega_BS = 0;
-
-        
-
-            d1 = (Math.Log(S / K) + (r + 0.5 * sigma * sigma) * (T - t)) / (sigma * Math.Sqrt(T - t));
-
-            vega_BS = S0 * Math.Sqrt(T) * dN(d1);
-
-            return vega_BS;
-        
-    }
-        public double Theta_BlackScholes_Call(double T,double r,double sigma,double S0,double K,double t,double S) {
-        double d1;
-        double d2;
-        double Theta_BS = 0;
-
-        
-
-            d1 = (Math.Log(S / K) + (r + 0.5 * sigma * sigma) * (T - t)) / (sigma * Math.Sqrt(T - t));
-            d2 = d1 - sigma * Math.Sqrt(T - t);
-
-            Theta_BS = ((-S * dN(d1) * sigma) / (2 * Math.Sqrt(T))) - (r * K * Math.Exp(-r * T) * N(d2));
-
-            return Theta_BS;
-        
-    }
-        public double Theta_BlackScholes_Put(double T,double r,double sigma,double S0,double K,double t,double S) {
-        double d1;
-        double d2;
-        double Theta_BS = 0;
-
-        
-
-            d1 = (Math.Log(S / K) + (r + 0.5 * sigma * sigma) * (T - t)) / (sigma * Math.Sqrt(T - t));
-            d2 = d1 - sigma * Math.Sqrt(T - t);
-
-            Theta_BS = ((-S * dN(d1) * sigma) / (2 * Math.Sqrt(T))) + (r * K * Math.Exp(-r * T) * N(d2));
-
-            return Theta_BS;
-        
-    }
-        public double Rho_BlackScholes_Call(double T,double r,double sigma,double S0,double K,double t,double S) {
-        double d1;
-        double d2;
-        double Theta_BS = 0;
-
-        
-
-            d1 = (Math.Log(S / K) + (r + 0.5 * sigma * sigma) * (T - t)) / (sigma * Math.Sqrt(T - t));
-            d2 = d1 - sigma * Math.Sqrt(T - t);
-
-            Theta_BS = T * K * Math.Exp(-r * T) * N(d2);
-
-            return Theta_BS;
-        
-    }
-        public double Rho_BlackScholes_Put(double T,double r,double sigma,double S0,double K,double t,double S) {
-        double d1;
-        double d2;
-        double Theta_BS = 0;
-
-        
-
-            d1 = (Math.Log(S / K) + (r + 0.5 * sigma * sigma) * (T - t)) / (sigma * Math.Sqrt(T - t));
-            d2 = d1 - sigma * Math.Sqrt(T - t);
-
-            Theta_BS = -T * K * Math.Exp(-r * T) * N(d2);
-
-            return Theta_BS;
-        
-    }
     
-    public double Volga_BlackScholes(double T, double r, double sigma, double S0, double K, double t, double S)
-    {
-        double d1;
-        double d2;
-        double Volga_BS = 0;
-
-        
-
-            d1 = (Math.Log(S / K) + (r + 0.5 * sigma * sigma) * (T - t)) / (sigma * Math.Sqrt(T - t));
-            d2 = d1 - sigma * Math.Sqrt(T - t);
-
-            Volga_BS = S*dN(d1)*Math.Sqrt(T)*((d1*d2)/sigma);
-
-            return Volga_BS;
-        
-    }
-    
-      
         [ComUnregisterFunctionAttribute]
 
         public static void UnregisterFunction(System.Type t)
